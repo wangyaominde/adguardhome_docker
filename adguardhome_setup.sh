@@ -108,57 +108,6 @@ check_docker() {
   fi
 }
 
-# 自动申请证书
-request_certificate() {
-  echo "开始申请证书..."
-  read -p "请输入域名: " domain
-  if [ -z "$domain" ]; then
-    echo "域名不能为空，退出证书申请。"
-    return
-  fi
-
-  echo "检测域名DNS解析..."
-  resolved_ip=$(dig +short $domain | head -n 1)
-  if [ -z "$resolved_ip" ]; then
-    echo "域名解析失败，请检查DNS设置。"
-    return
-  fi
-
-  echo "域名解析成功: $resolved_ip"
-
-  echo "安装Certbot..."
-  if [ -x "$(command -v apt)" ]; then
-    apt install -y certbot
-  elif [ -x "$(command -v yum)" ]; then
-    yum install -y certbot
-  fi
-
-  attempts=0
-  max_attempts=5
-
-  while [ $attempts -lt $max_attempts ]; do
-    echo "申请证书... (尝试次数: $((attempts+1)))"
-    certbot certonly --standalone -d $domain --agree-tos -m admin@$domain --non-interactive
-
-    cert_path="/etc/letsencrypt/live/$domain"
-    if [ -d "$cert_path" ]; then
-      echo "证书申请成功，证书路径: $cert_path"
-      mkdir -p ~/certificates
-      cp -r $cert_path ~/certificates/
-      echo "证书已保存到 ~/certificates/$domain"
-      return
-    fi
-
-    attempts=$((attempts+1))
-    if [ $attempts -lt $max_attempts ]; then
-      echo "证书申请失败，等待10秒后重试..."
-      sleep 10
-    fi
-  done
-
-  echo "证书申请失败，已尝试 $max_attempts 次，请检查日志并确认域名设置正确。"
-}
-
 # 主程序
 update_system
 install_dependencies
@@ -167,7 +116,6 @@ install_docker
 start_docker
 configure_mirror
 check_docker
-request_certificate
 
 exit 0
 
