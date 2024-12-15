@@ -1,0 +1,24 @@
+version: '3.7'
+
+services:
+  adguardhome:
+    image: adguard/adguardhome:latest
+    container_name: adguardhome
+    restart: unless-stopped
+    volumes:
+      - /opt/adguardhome/config:/opt/adguardhome/conf
+      - /opt/adguardhome/work:/opt/adguardhome/work
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "67:67/udp"
+      - "80:80/tcp"
+      - "443:443/tcp"
+      - "3000:3000/tcp"
+
+# 使用说明：
+# 1. 将此docker-compose.yml文件保存到目标目录。
+# 2. 确保 /opt/adguardhome/config 和 /opt/adguardhome/work 目录存在，并有正确的权限。
+# 3. 在保存目录运行 `docker-compose up -d` 启动服务。
+# 4. 访问地址：http://<服务器IP>:3000
+
