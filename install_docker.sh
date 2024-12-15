@@ -41,6 +41,44 @@ setup_docker_repository() {
   fi
 }
 
+# 配置国内镜像源
+configure_mirror() {
+  echo "选择Docker国内镜像源："
+  echo "1. 腾讯云"
+  echo "2. 阿里云"
+  echo "3. 不配置国内镜像源"
+  read -p "请输入选项 (1/2/3): " choice
+
+  case $choice in
+    1)
+      echo "使用腾讯云镜像源..."
+      mirror_url="https://mirror.ccs.tencentyun.com"
+      ;;
+    2)
+      echo "使用阿里云镜像源..."
+      mirror_url="https://registry.aliyuncs.com"
+      ;;
+    3)
+      echo "不使用国内镜像源。"
+      return
+      ;;
+    *)
+      echo "无效选项，默认不配置国内镜像源。"
+      return
+      ;;
+  esac
+
+  mkdir -p /etc/docker
+  cat > /etc/docker/daemon.json <<EOF
+{
+  "registry-mirrors": ["$mirror_url"]
+}
+EOF
+
+  echo "重启Docker以应用镜像源配置..."
+  systemctl restart docker
+}
+
 # 安装Docker CE
 install_docker() {
   echo "安装Docker CE..."
@@ -76,6 +114,7 @@ install_dependencies
 setup_docker_repository
 install_docker
 start_docker
+configure_mirror
 check_docker
 
 exit 0
