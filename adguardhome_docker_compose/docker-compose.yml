@@ -9,8 +9,8 @@ services:
       - /opt/adguardhome/config:/opt/adguardhome/conf
       - /opt/adguardhome/work:/opt/adguardhome/work
     ports:
-      - "853:53/tcp"
-      - "853:53/udp"
+      - "853:853/tcp"
+      - "853:853/udp"
       - "867:67/udp"
       - "880:80/tcp"
       - "8443:443/tcp"
